@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solar System Orrery</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+        #controls {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 10px;
+            border-radius: 5px;
+            z-index: 100;
+        }
+        button, input[type="range"] {
+            font-size: 16px;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+        #backButton {
+            display: none; /* Initially hidden, shown only when focusing on Earth */
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 10px;
+            border-radius: 5px;
+            z-index: 100;
+        }
+        /* Zoom buttons */
+        .zoom-button {
+            padding: 10px 20px;
+            margin: 5px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        .zoom-button:hover {
+            background-color: #0056b3;
+            transform: scale(1.05);
+        }
+
+        .zoom-button:active {
+            transform: scale(0.95);
+        }
+
+        /* Scrollable planet information panel */
+        #planetInfoPanel {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 300px;
+            height: 100%;
+            background-color: rgba(0, 0, 128, 0.8); /* Blue background */
+            color: white;
+            overflow-y: auto;
+            padding: 20px;
+            box-sizing: border-box;
+            z-index: 1;
+            display: none; /* Initially hidden */
+        }
+
+        /* Individual planet information block */
+        .planet-info-block {
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding-bottom: 10px;
+        }
+
+        /* Planet image */
+        .planet-image {
+            width: 100%;
+            height: auto;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        /* Planet name and details */
+        .planet-name {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .planet-details {
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Main controls: Show/Hide orbits, planet speed, focus on Earth -->
+    <div id="controls">
+        <button id="toggleOrbits">Hide Orbits</button><br />
+        <input id="speedSlider" type="range" min="0.1" max="2" value="1" step="0.1">
+        <label for="speedSlider">Planet Speed</label><br />
+        <button id="focusEarth">Focus on Earth</button>
+        <button id="switchData">Real Scaled Solar System</button>
+    </div>
+
+    <!-- Back button (shown only when focusing on Earth) -->
+    <div id="backButton">
+        <button id="backToSystem">Back to Solar System</button>
+    </div>
+
+    <!-- Zoom controls -->
+    <div id="zoomControls" style="position: absolute; bottom: 20px; right: 20px; z-index: 1;">
+        <button id="zoomIn" class="zoom-button">Zoom In</button>
+        <button id="zoomOut" class="zoom-button">Zoom Out</button>
+    </div>
+
+    <!-- Scrollable planet information panel -->
+    <div id="planetInfoPanel"></div>
+
+    <!-- Include the main.js script -->
+    <script type="module" src="/src/main.js"></script>
+</body>
+</html>
+
+
+<!--
+const planetsData = [
+  { name: 'Mercury', text: "The closest planet to the Sun, Mercury is a small, rocky world with extreme temperature fluctuations.", size: 0.2, distance: 2, speed: 0.04, texture: 'textures/mercury.jpg', rotationSpeed: 0.005, inclinationX: 7, inclinationZ: 5, realSize: '4,879 km', realSpeed: '172,332 km/h' },
+  { name: 'Venus', text: "Known for its thick, toxic atmosphere and scorching surface temperatures, Venus is often called Earth's sister planet.", size: 0.3, distance: 3, speed: 0.015, texture: 'textures/venus.jpg', rotationSpeed: 0.004, inclinationX: 3.39, inclinationZ: 2, realSize: '12,104 km', realSpeed: '126,074 km/h' },
+  { name: 'Earth', text: "The only planet known to support life, Earth has a balanced climate, liquid water, and a diverse range of ecosystems.", size: 0.35, distance: 4, speed: 0.01, texture: 'textures/earth.jpg', rotationSpeed: 0.01, inclinationX: 0, inclinationZ: 0, realSize: '12,742 km', realSpeed: '107,226 km/h' },
+  { name: 'Mars', text: "The 'Red Planet', Mars has a thin atmosphere and is home to the largest volcano and canyon in the solar system.", size: 0.25, distance: 5, speed: 0.008, texture: 'textures/mars.jpg', rotationSpeed: 0.008, inclinationX: 1.85, inclinationZ: 1, realSize: '6,779 km', realSpeed: '86,871 km/h' },
+  { name: 'Jupiter', text: "The largest planet in the solar system, Jupiter is a gas giant with powerful storms, including the famous Great Red Spot.", size: 0.7, distance: 7, speed: 0.002, texture: 'textures/jupiter.jpg', rotationSpeed: 0.02, inclinationX: 1.3, inclinationZ: 0.5, realSize: '139,820 km', realSpeed: '47,002 km/h' },
+  { name: 'Saturn', text: "Saturn is best known for its stunning ring system, made up of ice and rock particles orbiting the gas giant.", size: 0.6, distance: 9, speed: 0.0017, texture: 'textures/saturn.jpg', rotationSpeed: 0.018, inclinationX: 2.49, inclinationZ: 3, realSize: '116,460 km', realSpeed: '34,701 km/h' },
+  { name: 'Uranus', text: "An ice giant with a tilted axis, Uranus rotates on its side, giving it extreme seasonal variations.", size: 0.5, distance: 11, speed: 0.0012, texture: 'textures/uranus.jpg', rotationSpeed: 0.014, inclinationX: 0.77, inclinationZ: 0.3, realSize: '50,724 km', realSpeed: '24,477 km/h' },
+  { name: 'Neptune', text: "The farthest planet from the Sun, Neptune has strong winds and violent storms in its deep blue atmosphere.", size: 0.45, distance: 13, speed: 0.001, texture: 'textures/neptune.jpg', rotationSpeed: 0.012, inclinationX: 1.77, inclinationZ: 1.5, realSize: '49,244 km', realSpeed: '19,566 km/h' },
+];-->
